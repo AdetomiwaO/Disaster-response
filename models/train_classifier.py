@@ -22,6 +22,14 @@ from sklearn.tree import DecisionTreeClassifier
 import pickle
 
 def load_data(database_filepath):
+    ''' 
+    function to load data from the sqlite database.
+    function returns variables:
+    X - messages
+    y - message categories
+    category_names - list of the 36 category names
+    
+    '''
     # read in file
     engine = db.create_engine('sqlite:///{}'.format(database_filepath))
     connection = engine.connect()
@@ -36,6 +44,11 @@ def load_data(database_filepath):
     return X, y, category_names
 
 def tokenize(text):
+    '''
+    pre-processing text, lemmatize, remove special characters & stop_words & tokenize
+    returns clean tokens used to train the classifier
+    
+    '''
     stop_words = set(stopwords.words('english'))
     lemmatizer = WordNetLemmatizer()
     
@@ -48,8 +61,13 @@ def tokenize(text):
 
 
 def build_model():
+    '''
+    model pipeline to train classifier to predict outputs for the 36 categories
+    cv - grid search for tuning parameters
+    
+    '''
+   
     rf = RandomForestClassifier()
-    dt = DecisionTreeClassifier()
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer = tokenize)),
         ('tfidf', TfidfTransformer()),
@@ -68,7 +86,10 @@ def build_model():
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
- 
+    '''
+    print model results 
+    
+    '''
     print("\nBest Parameters:", model.best_params_)
     y_pred = model.predict(X_test)
     y_pred_df = pd.DataFrame(y_pred, columns = category_names)
@@ -79,6 +100,10 @@ def evaluate_model(model, X_test, Y_test, category_names):
 
 
 def save_model(model, model_filepath):
+    '''
+    save model to pickle file to be loaded and run in the web app
+    
+    '''
     with open(model_filepath, 'wb') as f:
         #edit the file
         pickle.dump(model, f)

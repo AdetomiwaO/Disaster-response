@@ -3,7 +3,11 @@ import pandas as pd
 import sqlalchemy as db
 
 def load_data(messages_filepath, categories_filepath):
+    '''
+    load messages and category label dataframes
+    merge dataframes together on the common key 'id'
     
+    '''
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
     df = pd.merge(messages, categories, on = 'id')
@@ -11,6 +15,11 @@ def load_data(messages_filepath, categories_filepath):
     return df
 
 def clean_data(df):
+    '''
+    extract binary variables, clean dataframe, drop unwanted columns
+    replace non-binary values, dro duplicate rows
+    
+    '''
     categories = df.categories.str.split(';' , expand=True)
     # select the first row of the categories dataframe
     row = categories[:1]
@@ -36,6 +45,10 @@ def clean_data(df):
     
     
 def save_data(df, database_filepath):
+    '''
+    save cleaned dataframe to sqlite database
+    
+    '''
     engine = db.create_engine('sqlite:///{}'.format(database_filepath))                     
     df.to_sql('DisasterResponse_db', engine, index=False)  
 
